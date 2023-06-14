@@ -1,0 +1,226 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class NewBehaviourScript : MonoBehaviour
+{
+
+    private Person person = new(); 
+    private static UnityEngine.Vector3 previus;
+    private static float MoveRotatePrev;
+    public static UnityEngine.GameObject personObj;
+    private  DataPerson UserData= new(); // nova strutura de dados
+
+
+    struct DataPerson {
+        public int bullet;
+        public string name;
+        public string description;
+        public int life;
+        public int combustivel;
+    } // dados fixos do personagem
+
+    interface PersonUX { //movimenta e atira com o person
+        void Move();
+    } // inplementa a classe Person com metodos 
+ 
+
+
+
+   public class Person : PersonUX
+    {
+
+
+        public static double porcentagemCombustivel;
+        public static UnityEngine.Transform transform;
+        public static int MaxTanque = 1000;
+
+        public void Move()
+        {
+
+            //consumo de combustivel
+            if (personObj != null) //si encontrar o obj no unity
+            {
+                if(personObj.transform.position != previus
+                    || personObj.transform.rotation.y != MoveRotatePrev)
+                {
+                    porcentagemCombustivel -= 0.1;
+                    previus = personObj.transform.position;
+                    MoveRotatePrev = personObj.transform.rotation.y;
+                    //print(porcentagemCombustivel);
+                }
+            }//consumo de combustivel caso si mova
+
+
+            UnityEngine.GameObject CanvasText = GameObject.Find("Canvas_Bateria");
+            TextMeshProUGUI txt;
+
+            if (CanvasText is not null)
+            {
+                txt = CanvasText.GetComponent<TextMeshProUGUI>();
+                if (txt != null)
+                {
+                    txt.text = porcentagemCombustivel.ToString("F0"); //sem casas decimais
+                }
+                else
+                {
+                    print("error");
+                }
+            }
+
+
+            float MoveX = 0.03f;
+            float MoveY = 0.3f;
+
+               if(porcentagemCombustivel > 0)
+            {
+                    if (Input.GetKey(KeyCode.W))
+                    {
+                        transform.Translate(0, 0, MoveX);
+                        if (Input.GetKey(KeyCode.D))
+                        {
+                            transform.Rotate(0, MoveY, 0);
+                        }
+                        if (Input.GetKey(KeyCode.A))
+                        {
+                            transform.Rotate(0, -MoveY, 0);
+                        }
+                    }
+                    else if (Input.GetKey(KeyCode.A))
+                    {
+                        transform.Rotate(0, -MoveY * 1f, 0);
+                    }
+                    else if (Input.GetKey(KeyCode.S))
+                    {
+                        transform.Translate(0, 0, -MoveX);
+                    }
+                    else if (Input.GetKey(KeyCode.D))
+                    {
+                        transform.Rotate(0, MoveY, 0);
+                    }
+            } // si for maior que zero tem combustivel
+            else
+            {
+                print("Sem combustivel");
+            }
+        }
+    }
+
+
+
+
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        personObj = GameObject.Find("Cube");
+        previus = personObj.transform.position;
+        MoveRotatePrev = personObj.transform.rotation.y;
+        Person.transform = transform;
+        UserData.combustivel = Person.MaxTanque; // tanque cheio
+        Person.porcentagemCombustivel = UserData.combustivel;
+    }
+
+    // Update is called once per frame
+    void Update() 
+    {
+        person.Move();
+    }
+
+
+}
+
+
+//code 2 combustivel
+
+
+
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.PlayerLoop;
+
+public class Combustivel : MonoBehaviour
+{
+    // Start is called before the first frame update
+
+
+    ReloadGas IReloadGas;
+    public ParticleSystem LightParticle;
+
+
+    interface CapsuleGas
+    {
+        public void Reload();
+       
+    }
+
+
+   public class ReloadGas : CapsuleGas
+    {
+        public NewBehaviourScript propsPerson;
+        public int novaQuantidade = 500; // quantidade de combustivel que tem na capsula
+        public static UnityEngine.Light pointLight;
+        public static ParticleSystem sphereLight;
+
+
+        public void Reload() // quando colidir
+        {
+            //var color =   particleset.GetComponent<Color>();
+            //  print(color);
+            //var color = new Combustivel().particleset;
+
+
+            var MaxTanque = NewBehaviourScript.Person.MaxTanque;
+
+            if((NewBehaviourScript.Person.porcentagemCombustivel + novaQuantidade) > MaxTanque)
+            {
+                NewBehaviourScript.Person.porcentagemCombustivel = MaxTanque;
+            }
+            else {
+                NewBehaviourScript.Person.porcentagemCombustivel += novaQuantidade;
+            }
+            NewBehaviourScript.personObj.GetComponent<Renderer>().material.color = pointLight.color;
+           if(sphereLight is not null)
+            {
+                var main = sphereLight.main;
+                main.startColor = pointLight.color;
+            }
+        }
+    }
+
+
+    void Start()
+    {
+        IReloadGas  = new ReloadGas();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            if (LightParticle is not null) {
+                ReloadGas.sphereLight = LightParticle;
+            }
+            ReloadGas.pointLight = GetComponent<Light>();
+            IReloadGas.Reload();
+            Instantiate(LightParticle,transform.position,Quaternion.identity);
+            gameObject.SetActive(false);
+        }
+    } // chama si houver colisão com trigger
+}
+
+
+
+

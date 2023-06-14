@@ -1,0 +1,81 @@
+using Main.Methods;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+
+
+
+
+class Types
+{
+    public string[] FIRE = { "Pikachu,\r\nBulbasaur,\r\nCharizard,\r\nSquirtle,\r\nJigglypuff,\r\nSnorlax,\r\nEevee,\r\nGengar,\r\nLucario,\r\nDragonite." };
+    public string[] WATHER = { "Squirtle\r\nMagikarp\r\nGyarados\r\nBlastoise\r\nLapras\r\nVaporeon\r\nTotodile\r\nFeraligatr\r\nWooper\r\nQuagsire\r\nMudkip\r\nSwampert\r\nFeebas\r\nMilotic\r\nPiplup\r\nPrinplup\r\nEmpoleon\r\nBuizel\r\nFloatzel\r\nOshawott\r\nDewott\r\nSamurott\r\nPanpour\r\nSimipour\r\nFroakie\r\nFrogadier\r\nGreninja\r\nClauncher\r\nClawitzer\r\nPopplio\r\nBrionne\r\nPrimarina\r\nSobble\r\nDrizzile\r\nInteleon\r\n\r\n\r\n\r\n\r\nRegenerate response\r\n" };
+
+}
+
+
+
+
+
+namespace Main
+{
+
+    namespace Methods
+    {
+        class List : Types {
+         public static void RenderList(string type)
+            {
+                Types pokeType = new List();
+                   switch (type){
+                    case "FIRE":
+                        foreach (var item in pokeType.FIRE)
+                        {
+                            Console.WriteLine(item);
+                        }
+                        break;
+                    case "WATHER":
+                        foreach (var item in pokeType.WATHER)
+                        {
+                            Console.WriteLine(item);
+                        }
+                        break;
+                    default: Console.WriteLine("Nenhum tipo especificado\r\n Digite um novo tipo ou digite CANCELAR para sair do programa");
+
+                        break;
+
+                }
+            }
+        }
+    }
+
+
+   namespace renderMain
+    {
+        class Render : Types
+        {
+
+
+            static void Main(string[] args)
+            {
+
+
+                Render Type = new Render(); // tipo da variavel definida na variavel
+                Console.WriteLine("Digite o tipo de pokemons");
+                string nameType = Console.ReadLine();
+                if (nameType != null)
+                {
+                    List.RenderList(nameType.ToUpper());
+                }
+                else
+                {
+                    Console.WriteLine("Não encontramos nada");
+                }
+            }
+        }
+    }
+
+}

@@ -1,0 +1,128 @@
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
+
+public class Player : MonoBehaviour, IControlPlayer
+{
+
+   public float DistancePick;
+   public float ThrowAwayDistance;
+
+
+    struct DataPick
+    {
+        public GameObject target; // apenas para meios futuros
+        public bool IsPIck;
+        public float distance;
+        public float ThrowAwayDistance;
+        public int initialDistance;
+        public Coroutine coroutine;
+    }
+
+    private DataPick dataPick = new DataPick();
+
+
+    public void Pick()
+    {
+        dataPick.IsPIck = !dataPick.IsPIck;
+
+        if (dataPick.IsPIck)
+        {
+            RaycastHit hit;
+            bool RayCast = Physics.Raycast(transform.position, transform.forward, out hit, dataPick.distance);
+            if (RayCast)
+            {
+                dataPick.target = hit.collider.gameObject;
+            }
+            else
+            {
+                dataPick.IsPIck = false;
+            }
+        }
+        else
+        {
+            dataPick.target = null;
+            dataPick.initialDistance = 0;
+        }
+    }
+
+
+    public IEnumerator LoadForce() // cria uma força para jogar o o objeto
+    {
+        while(dataPick.initialDistance < dataPick.ThrowAwayDistance)
+        {
+            yield return new WaitForSeconds(0.2f);
+            dataPick.initialDistance += 5;
+            print(dataPick.initialDistance);
+        }
+    }
+
+    public void ThrowAway() // jogar o objeto
+    {
+        StopCoroutine(dataPick.coroutine);
+        dataPick.IsPIck = false;
+        Rigidbody Body = dataPick.target.GetComponent<Rigidbody>();
+        Body.AddForce(transform.forward * dataPick.initialDistance, ForceMode.Impulse);
+        dataPick.initialDistance = 0;
+    }
+
+
+    public void Controls()
+    {
+
+
+    }
+
+
+    
+
+
+
+
+    private void Start()
+    {
+        dataPick.IsPIck = false;
+        dataPick.target = null; ; // empty
+        dataPick.distance = DistancePick;
+        dataPick.ThrowAwayDistance = ThrowAwayDistance;
+    }
+
+
+
+
+   private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            Pick();
+        }
+
+        if (dataPick.IsPIck)
+        {
+            if(dataPick.target != null)
+            {
+                Vector3 positionPick = transform.position + transform.forward * dataPick.distance;
+                dataPick.target.transform.position = positionPick;
+                dataPick.target.transform.rotation = transform.rotation;
+            }
+
+            if (Input.GetMouseButtonDown(0) && dataPick.initialDistance != dataPick.ThrowAwayDistance)
+            {
+                dataPick.coroutine = StartCoroutine(LoadForce());
+            }
+
+            if (Input.GetMouseButtonUp(0))
+            {
+                ThrowAway();
+            }
+        } // pega o objeto
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position,DistancePick);
+    }
+
+}

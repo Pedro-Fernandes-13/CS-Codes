@@ -1,0 +1,95 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Estudo : MonoBehaviour
+{
+    // Start is called before the first frame update
+
+    private Vector3 input;
+    private  Rigidbody rb;
+    public float speed;
+    public float gravityScale;
+    public float speedRotate;
+    public GameObject PointLight;
+    public float jumpForce;
+    private bool Isjump;
+
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+        Isjump = false;
+    }
+
+
+
+    private enum ItemsCollection {
+        Item1 = 2,
+        Item2 = 3,
+        Item3 = 4,
+    } // items para serem achados
+
+
+
+
+
+    private void Update()
+    {
+
+        if (Input.GetKeyDown(KeyCode.Space) )
+        {
+            if(rb.velocity.y == 0f) { Isjump = true; } // verifica a velocidade do eixo y si está pulando
+        } 
+       
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            Isjump = false;
+        } // falta resolver o problema do tempo de tecla pressionada
+
+    }
+
+
+    void FixedUpdate() 
+    {
+        if(Isjump) // is grounded // no chão
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        }
+        else if(!Isjump)
+        {
+
+        }//JUMP
+
+
+        input = new(Input.GetAxis("Horizontal"),0,Input.GetAxis("Vertical"));
+
+
+        if (!Input.GetKey(KeyCode.W) &&
+            !Input.GetKey(KeyCode.S) && 
+            !Input.GetKey(KeyCode.A) &&
+            !Input.GetKey(KeyCode.D))
+        {
+            input = Vector3.zero;
+        } // si eu não estiver apertando nada ele não si move
+
+
+        Vector3 gravity = Physics.gravity * gravityScale;
+        rb.AddForce(gravity, ForceMode.Acceleration);
+
+        input = input.normalized;
+        if(!Vector3.Equals(input, Vector3.zero))
+        {
+            transform.forward = Vector3.Lerp(transform.forward, input, Time.deltaTime * speedRotate);
+        }
+
+        rb.velocity = new Vector3(input.x * speed , rb.velocity.y, input.z * speed);
+
+        if (PointLight is not null) // if light is placed
+        {
+            PointLight.transform.position = new Vector3(transform.position.x,
+                PointLight.transform.position.y , transform.position.z);
+        }
+    }
+}
+

@@ -1,0 +1,35 @@
+    private void RaycastCollider()
+    {
+        float distanceRay = 4f;
+
+        if (Physics.Raycast(transform.position, transform.forward, out hit, distanceRay))
+        {
+            // Verificar se um novo objeto foi atingido
+            if (hit.collider.gameObject != lastSelectedObject)
+            {
+                // Restaurar a cor do objeto anteriormente selecionado, se houver
+                if (lastSelectedObject != null)
+                {
+                    Renderer renderer = lastSelectedObject.GetComponent<Renderer>();
+                    renderer.material.color = Color.white;
+                }
+
+                // Armazenar a referência ao novo objeto selecionado
+                lastSelectedObject = hit.collider.gameObject;
+
+                // Fazer algo com o novo objeto selecionado, como mudar sua cor
+                Renderer newRenderer = lastSelectedObject.GetComponent<Renderer>();
+                newRenderer.material.color = Color.blue;
+            }
+        }
+        else
+        {
+            // Nenhum objeto atingido, restaurar a cor do objeto anteriormente selecionado
+            if (lastSelectedObject != null)
+            {
+                Renderer renderer = lastSelectedObject.GetComponent<Renderer>();
+                renderer.material.color = Color.white;
+                lastSelectedObject = null;
+            }
+        }
+    }

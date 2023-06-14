@@ -1,0 +1,86 @@
+using Form.Methods_Validation;
+using Form.MSgLogOut;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+
+
+
+
+
+namespace Form
+{
+
+    class setData{
+
+        public object[] DataUSer(string  name, string id){
+            return new object[] { name, id };
+
+        }
+    }
+
+   namespace Methods_Validation
+    {
+        public static class Validation
+        {
+         public static void Login()
+            {
+                string name = "";
+                string id = "";
+
+                Console.Write("Bem vindo");
+                Console.WriteLine("Digite seu nome");
+                name =  Console.ReadLine();
+                if(name != "")
+                {
+                    Console.WriteLine("Digite seu id");
+                    id = Console.ReadLine();
+                }
+                if(id != "")
+                {
+                   var user = new setData().DataUSer(name,id); //create new object data user
+                    Console.WriteLine("Deseja logar?");
+                   string resp = Console.ReadLine();
+                    switch(resp)
+                    {
+                        case "yes":
+                            Log_Out.Log(name);
+                            break;
+                        case "no":
+                            Log_Out.Out(name);
+                            break;
+                    }
+                }
+            }
+        }
+    } //Methods_Validation
+
+    namespace MSgLogOut
+    {
+        public class Log_Out
+        {
+           public static void Log(string name)
+            {
+                Console.WriteLine($"Wellcome {name}");
+            }
+           public static void Out(string name)
+            {
+                Console.WriteLine($"By sr {name}");
+            }
+        }
+
+    } // namespace MSgLogOut
+
+
+    class Aplha
+    {
+       static void Main(string[] args) {
+            Validation.Login();
+        }
+    }
+
+}//end namespace form
